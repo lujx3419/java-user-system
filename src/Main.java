@@ -13,9 +13,12 @@ public class Main {
         ArrayList<User> users = new ArrayList<>();
 
         // 读取用户文件
-        File file = new File("users.txt");
+        File file = new File("users.csv");
         if (file.exists()) {
             try (Scanner fileScanner = new Scanner(file)) {
+                if (fileScanner.hasNextLine()) {
+                    fileScanner.nextLine();
+                }
                 while (fileScanner.hasNextLine()) {
                     String line = fileScanner.nextLine();
                     User user = User.fromString(line);
@@ -101,11 +104,12 @@ public class Main {
                                     System.out.println("❌ 未找到用户：" + toDelete);
                                 } else {
                                     // 更新文件内容
-                                    try (FileWriter fw = new FileWriter("users.txt", false)) {
+                                    try (FileWriter fw = new FileWriter("users.csv", false)) {
+                                        fw.write("username,password,isAdmin,registerTime\n");
                                         for (User u : users) {
                                             fw.write(u.toString() + "\n");
                                         }
-                                        System.out.println("📝 用户列表已更新到文件！");
+                                        System.out.println("📝 用户列表已更新到CSV文件！");
                                     } catch (IOException e) {
                                         System.out.println("⚠️ 文件写入失败：" + e.getMessage());
                                     }
@@ -151,9 +155,9 @@ public class Main {
                     users.add(newUserObj);
                     System.out.println("✅ 注册成功！");
 
-                    try (FileWriter fw = new FileWriter("users.txt", true)) {
+                    try (FileWriter fw = new FileWriter("users.csv", true)) {
                         fw.write(newUserObj.toString() + "\n");
-                        System.out.println("📝 用户信息已保存到文件");
+                        System.out.println("📝 用户信息已保存到CSV文件");
                     } catch (IOException e) {
                         System.out.println("⚠️ 写入文件失败：" + e.getMessage());
                     }
