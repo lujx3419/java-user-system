@@ -3,10 +3,11 @@ import java.time.LocalDateTime;
 
 public class User {
 
-    private String username;
+    private final String username;
     private String password;
-    private LocalDateTime registerTime;
     private boolean isAdmin;
+    private LocalDateTime registerTime;
+    
 
     public User(String username, String password, boolean isAdmin) {
         this.username = username;
@@ -58,5 +59,9 @@ public class User {
     // 可选 Setter
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 }

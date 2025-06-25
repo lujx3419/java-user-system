@@ -17,7 +17,7 @@ public class Main {
         if (file.exists()) {
             try (Scanner fileScanner = new Scanner(file)) {
                 if (fileScanner.hasNextLine()) {
-                    fileScanner.nextLine();
+                    fileScanner.nextLine(); // 跳过表头
                 }
                 while (fileScanner.hasNextLine()) {
                     String line = fileScanner.nextLine();
@@ -65,13 +65,13 @@ public class Main {
                     System.out.println("注册时间：" + currentUser.getRegisterTime());
 
                     if (currentUser.isAdmin()) {
-                        System.out.println("🎩 你是管理员！");
-
+                        // 管理员功能
                         while (true) {
                             System.out.println("\n--- 管理员功能 ---");
                             System.out.println("1. 查看所有用户");
                             System.out.println("2. 删除用户");
-                            System.out.println("3. 返回主菜单");
+                            System.out.println("3. 修改用户信息");
+                            System.out.println("4. 返回主菜单");
                             System.out.print("请输入选项：");
 
                             String adminChoice = scanner.nextLine();
@@ -83,13 +83,12 @@ public class Main {
                                             + " | 管理员：" + u.isAdmin()
                                             + " | 注册时间：" + u.getRegisterTime());
                                 }
-
                             } else if (adminChoice.equals("2")) {
                                 System.out.print("请输入要删除的用户名：");
                                 String toDelete = scanner.nextLine();
                                 boolean found = false;
 
-                                Iterator<User> iter = users.iterator();  // 用迭代器安全删除
+                                Iterator<User> iter = users.iterator();
                                 while (iter.hasNext()) {
                                     User u = iter.next();
                                     if (u.getUsername().equals(toDelete)) {
@@ -103,7 +102,6 @@ public class Main {
                                 if (!found) {
                                     System.out.println("❌ 未找到用户：" + toDelete);
                                 } else {
-                                    // 更新文件内容
                                     try (FileWriter fw = new FileWriter("users.csv", false)) {
                                         fw.write("username,password,isAdmin,registerTime\n");
                                         for (User u : users) {
@@ -116,6 +114,50 @@ public class Main {
                                 }
 
                             } else if (adminChoice.equals("3")) {
+                                System.out.print("请输入要修改的用户名：");
+                                String targetUser = scanner.nextLine();
+                                boolean found = false;
+
+                                for (User u : users) {
+                                    if (u.getUsername().equals(targetUser)) {
+                                        found = true;
+
+                                        System.out.print("请输入新密码（留空则不修改）：");
+                                        String newPass = scanner.nextLine();
+                                        if (!newPass.isEmpty()) {
+                                            u.setPassword(newPass);
+                                            System.out.println("🔑 密码已修改");
+                                        }
+
+                                        System.out.print("是否设置为管理员？(y/n, 留空不变)：");
+                                        String changeAdmin = scanner.nextLine().trim().toLowerCase();
+                                        if (changeAdmin.equals("y")) {
+                                            u.setAdmin(true);
+                                            System.out.println("🎩 已设置为管理员");
+                                        } else if (changeAdmin.equals("n")) {
+                                            u.setAdmin(false);
+                                            System.out.println("🧑 已设置为普通用户");
+                                        }
+
+                                        break;
+                                    }
+                                }
+
+                                if (!found) {
+                                    System.out.println("❌ 没有找到该用户！");
+                                } else {
+                                    // 更新 CSV 文件
+                                    try (FileWriter fw = new FileWriter("users.csv", false)) {
+                                        fw.write("username,password,isAdmin,registerTime\n");
+                                        for (User u : users) {
+                                            fw.write(u.toString() + "\n");
+                                        }
+                                        System.out.println("📝 用户信息已写入 CSV");
+                                    } catch (IOException e) {
+                                        System.out.println("⚠️ 写入文件失败：" + e.getMessage());
+                                    }
+                                }
+                            } else if (adminChoice.equals("4")) {
                                 break;
                             } else {
                                 System.out.println("无效选项，请重新输入");
@@ -123,13 +165,53 @@ public class Main {
                         }
 
                     } else {
-                        System.out.println("（普通用户已登录）");
+                        // 普通用户功能
+                        while (true) {
+                            System.out.println("\n--- 用户功能 ---");
+                            System.out.println("1. 修改密码");
+                            System.out.println("2. 登出");
+                            System.out.print("请输入选项：");
+
+                            String userChoice = scanner.nextLine();
+
+                            if (userChoice.equals("1")) {
+                                System.out.print("请输入旧密码：");
+                                String oldPass = scanner.nextLine();
+                                if (oldPass.equals(currentUser.getPassword())) {
+                                    System.out.print("请输入新密码：");
+                                    String newPass = scanner.nextLine();
+                                    currentUser.setPassword(newPass);
+                                    System.out.println("✅ 密码修改成功！");
+
+                                    try (FileWriter fw = new FileWriter("users.csv", false)) {
+                                        fw.write("username,password,isAdmin,registerTime\n");
+                                        for (User u : users) {
+                                            fw.write(u.toString() + "\n");
+                                        }
+                                        System.out.println("📝 用户信息已更新到 CSV 文件");
+                                    } catch (IOException e) {
+                                        System.out.println("⚠️ 文件写入失败：" + e.getMessage());
+                                    }
+
+                                } else {
+                                    System.out.println("❌ 旧密码错误，修改失败！");
+                                }
+
+                            } else if (userChoice.equals("2")) {
+                                System.out.println("👋 已登出");
+                                break;
+                            } else {
+                                System.out.println("无效选项，请重新输入！");
+                            }
+                        }
                     }
+
                 } else {
                     System.out.println("❌ 用户名或密码错误！");
                 }
 
             } else if (choice.equals("2")) {
+                // 注册
                 System.out.print("请输入新用户名：");
                 String newUser = scanner.nextLine();
 
@@ -156,6 +238,9 @@ public class Main {
                     System.out.println("✅ 注册成功！");
 
                     try (FileWriter fw = new FileWriter("users.csv", true)) {
+                        if (file.length() == 0) {
+                            fw.write("username,password,isAdmin,registerTime\n"); // 写入表头
+                        }
                         fw.write(newUserObj.toString() + "\n");
                         System.out.println("📝 用户信息已保存到CSV文件");
                     } catch (IOException e) {
