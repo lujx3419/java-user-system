@@ -49,11 +49,12 @@ public class Main {
                 System.out.print("请输入密码：");
                 String password = scanner.nextLine();
 
+                String inputHashed = PasswordUtils.hash(password);
                 boolean success = false;
                 User currentUser = null;
 
                 for (User user : users) {
-                    if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+                    if (user.getUsername().equals(username) && user.getPassword().equals(inputHashed)) {
                         success = true;
                         currentUser = user;
                         break;
@@ -125,7 +126,8 @@ public class Main {
                                         System.out.print("请输入新密码（留空则不修改）：");
                                         String newPass = scanner.nextLine();
                                         if (!newPass.isEmpty()) {
-                                            u.setPassword(newPass);
+                                            String hashedPass = PasswordUtils.hash(newPass);
+                                            u.setPassword(hashedPass);
                                             System.out.println("🔑 密码已修改");
                                         }
 
@@ -177,10 +179,11 @@ public class Main {
                             if (userChoice.equals("1")) {
                                 System.out.print("请输入旧密码：");
                                 String oldPass = scanner.nextLine();
-                                if (oldPass.equals(currentUser.getPassword())) {
+                                if (PasswordUtils.hash(oldPass).equals(currentUser.getPassword())) {
                                     System.out.print("请输入新密码：");
                                     String newPass = scanner.nextLine();
-                                    currentUser.setPassword(newPass);
+                                    String hashedPass = PasswordUtils.hash(newPass);
+                                    currentUser.setPassword(hashedPass);
                                     System.out.println("✅ 密码修改成功！");
 
                                     try (FileWriter fw = new FileWriter("users.csv", false)) {
@@ -228,12 +231,13 @@ public class Main {
                 } else {
                     System.out.print("请输入新密码：");
                     String newPass = scanner.nextLine();
+                    String hashedPass= PasswordUtils.hash(newPass);
 
                     System.out.print("是否设置为管理员用户？(y/n)：");
                     String adminChoice = scanner.nextLine().trim().toLowerCase();
                     boolean isAdmin = adminChoice.equals("y");
 
-                    User newUserObj = new User(newUser, newPass, isAdmin);
+                    User newUserObj = new User(newUser, hashedPass, isAdmin);
                     users.add(newUserObj);
                     System.out.println("✅ 注册成功！");
 
