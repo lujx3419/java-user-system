@@ -20,8 +20,9 @@ Supports user registration, login, administrator permissions, and data persisten
 ```
 javaproject/
 ├── README.md             # ← This file
+├── users.csv             # User data CSV 
 ├── src/
-│   ├── users.csv         # User data CSV file
+│   file
 │   ├── Main.java         # Main logic
 │   └── User.java         # User data class
 ```
